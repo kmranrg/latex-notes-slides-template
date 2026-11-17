@@ -37,7 +37,7 @@ A book-style example (chapters and table of contents) is in [example-book.pdf](e
 ### Local (TeX Live / MacTeX / MiKTeX)
 
 ```sh
-git clone https://github.com/<your-username>/latex-notes-slides.git
+git clone https://github.com/kmranrg/latex-notes-slides.git
 cd latex-notes-slides
 latexmk note.tex        # build one document
 latexmk                 # build note, main, slides and guide
