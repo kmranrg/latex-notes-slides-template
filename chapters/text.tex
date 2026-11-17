@@ -1,0 +1,68 @@
+% ---------------------------------------------------------------------
+%  Sample content: text, lists and mathematics
+% ---------------------------------------------------------------------
+\section{Text and lists}\label{sec:text}
+
+This document is a sample built with the template. Each section shows one
+kind of element, so you can see the final look before writing your own notes.
+Replace this text with your content.
+
+Body text supports \emph{emphasis}, \textbf{bold text},
+\hl{highlighted key terms}, inline code such as \code{result = compute(data)},
+and links such as \href{https://example.com}{example.com}.\footnote{Footnotes
+appear at the bottom of the page.}
+
+\begin{itemize}
+  \item Bullet lists use the accent color.
+  \item They can be nested:
+  \begin{itemize}
+    \item a second-level item
+    \item another second-level item
+  \end{itemize}
+  \item[\textcolor{co-green}{\checkmark}] Custom markers are possible too.
+\end{itemize}
+
+\begin{enumerate}
+  \item Numbered lists
+  \item keep the spacing compact
+  \item and align neatly.
+\end{enumerate}
+
+\subsection{A subsection}
+
+Subsections and subsubsections share the accent color, with smaller sizes.
+The header of each page shows the current section.
+
+\subsubsection{A subsubsection}
+
+Paragraphs are separated by a small gap instead of an indent, which keeps
+notes easy to scan.
+
+% ---------------------------------------------------------------------
+\section{Mathematics}\label{sec:math}
+
+Inline math sits in the text: $f\colon \R^n \to \R$, $\norm{\vect{x}}$,
+$\abs{a - b}$ and $\inner{\vect{u}}{\vect{v}}$. Letters and digits use the same
+typeface as the text.
+
+A numbered equation can be referenced later:
+\begin{equation}\label{eq:sample}
+  \int_a^b f(x)\,dx = F(b) - F(a).
+\end{equation}
+
+A multi-line derivation, aligned at the equals sign, with only the last line
+numbered:
+\begin{align}
+  (a + b)^2 &= (a + b)(a + b) \nonumber\\
+            &= a^2 + 2ab + b^2. \label{eq:aligned}
+\end{align}
+
+Matrices, sums, fractions and cases:
+\[
+  A = \begin{bmatrix} a_{11} & a_{12} \\ a_{21} & a_{22} \end{bmatrix},
+  \qquad
+  \sum_{k=1}^{n} k = \frac{n(n+1)}{2},
+  \qquad
+  \abs{x} = \begin{cases} x, & x \ge 0, \\ -x, & x < 0. \end{cases}
+\]
+References such as \eqref{eq:sample} and \eqref{eq:aligned} are clickable links.

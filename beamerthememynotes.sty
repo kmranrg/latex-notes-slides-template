@@ -1,0 +1,207 @@
+% ==============================================================
+%  beamerthememynotes.sty  --  slides in the same style as your notes
+%  Usage:  \documentclass[aspectratio=169, 9pt, t, notheorems]{beamer}
+%          \usetheme{mynotes}
+%  Compile with XeLaTeX. Same boxes, callouts, code, tables as the notes,
+%  but in a compact form (run-in box titles, tighter spacing).
+% ==============================================================
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{beamerthememynotes}[2026/11/16 v1.0 Slides in the mynotes style]
+
+% Options:
+%   \usetheme[sectionframes]{mynotes}  -- also add a big slide at every \section
+%   \usetheme[nonavigation]{mynotes}   -- no section/slide navigation bar at the top
+%   \usetheme[classicmath]{mynotes}    -- math letters in Latin Modern, not Plex Mono
+%   (nosectionframes is still accepted; it is now the default)
+\newif\ifnb@sectionframes \nb@sectionframesfalse
+\newif\ifnb@navigation    \nb@navigationtrue
+\DeclareOptionBeamer{sectionframes}{\nb@sectionframestrue}
+\DeclareOptionBeamer{nosectionframes}{\nb@sectionframesfalse}
+\DeclareOptionBeamer{nonavigation}{\nb@navigationfalse}
+\DeclareOptionBeamer{classicmath}{\def\nb@classicmath{}}   % read by mynotes-core
+\ProcessOptionsBeamer
+
+\providecommand{\nb@codesize}{\footnotesize}   % smaller code on slides
+\RequirePackage{mynotes-core}
+
+% ---------- Fonts: Plex Mono for text, our math font for math ----------
+\usefonttheme{serif}             % body text = \rmfamily = IBM Plex Mono Regular
+\usefonttheme{professionalfonts} % keep unicode-math's math font
+\setbeamerfont{frametitle}{size=\Large, series=\bfseries}
+\setbeamerfont{framesubtitle}{size=\small, series=\mdseries}
+\setbeamerfont{title}{size=\LARGE, series=\bfseries}
+\setbeamerfont{subtitle}{size=\large, series=\mdseries}
+\setbeamerfont{headline}{size=\scriptsize}
+\setbeamerfont{section in head/foot}{size=\scriptsize}
+\setbeamerfont{footline}{size=\scriptsize}
+\setbeamerfont{block title}{series=\bfseries}
+% Sub-items in the same size as items (Beamer makes them \small / \footnotesize)
+\setbeamerfont{itemize/enumerate subbody}{size=\normalsize}
+\setbeamerfont{itemize/enumerate subsubbody}{size=\normalsize}
+\linespread{1.0}                 % Plex Mono is already tall
+
+
+% ---------- Colors ----------
+\setbeamercolor{normal text}{fg=bodytext, bg=white}
+\setbeamercolor{structure}{fg=accent}
+\setbeamercolor{alerted text}{fg=co-red}
+\setbeamercolor{frametitle}{fg=accent}
+\setbeamercolor{title}{fg=accent}
+\setbeamercolor{subtitle}{fg=bodytext!70}
+\setbeamercolor{item}{fg=accent}
+\setbeamercolor{section in head/foot}{fg=accent}
+\setbeamercolor{block title}{fg=accent, bg=accent!12}
+\setbeamercolor{block body}{bg=accent!4}
+\setbeamercolor{block title alerted}{fg=co-red, bg=co-red!12}
+\setbeamercolor{block body alerted}{bg=co-red!4}
+\setbeamercolor{block title example}{fg=co-green, bg=co-green!12}
+\setbeamercolor{block body example}{bg=co-green!4}
+\hypersetup{colorlinks=true, linkcolor=accent, urlcolor=accent, citecolor=accent}
+
+% ---------- Layout ----------
+\def\nb@margin{6mm}
+\setbeamersize{text margin left=\nb@margin, text margin right=\nb@margin}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{blocks}[rounded]
+\setbeamertemplate{itemize item}{\textcolor{accent}{\small\textbullet}}
+\setbeamertemplate{itemize subitem}{\textcolor{accent}{--}}
+\setbeamertemplate{itemize subsubitem}{\textcolor{accent}{\tiny\textbullet}}
+\setbeamertemplate{enumerate item}{\textcolor{accent}{\bfseries\insertenumlabel.}}
+\setbeamertemplate{enumerate subitem}{\textcolor{accent}{\insertenumlabel.\insertsubenumlabel}}
+\setbeamertemplate{caption}[numbered]
+\setbeamertemplate{section in toc}{%
+  \textcolor{accent}{\bfseries\inserttocsectionnumber}\enspace\inserttocsection}
+\setbeamertemplate{subsection in toc}{%
+  \hspace*{1.6em}\textcolor{bodytext!70}{\small\inserttocsubsection}\par}
+
+% \website{https://example.com}   -- shown on the title slide and in the footer
+\newcommand{\website}[1]{\gdef\nb@url{#1}}
+\gdef\nb@url{}
+
+% ---------- Header: section names + one dot per slide (current one filled) ----------
+% Sections other than the current one are grayed out; every name and dot is a link.
+\setbeamertemplate{section in head/foot shaded}{%
+  \color{bodytext!40}\usebeamertemplate{section in head/foot}}
+\ifnb@navigation
+  \setbeamertemplate{headline}{%
+    \begin{beamercolorbox}[wd=\paperwidth]{section in head/foot}%
+      \usebeamerfont{section in head/foot}%
+      \vskip3pt\insertnavigation{\paperwidth}\vskip1pt
+    \end{beamercolorbox}}
+\else
+  \setbeamertemplate{headline}{\vskip3pt}
+\fi
+
+% ---------- Frame title ----------
+\setbeamertemplate{frametitle}{%
+  \vskip1pt
+  {\usebeamerfont{frametitle}\usebeamercolor[fg]{frametitle}\insertframetitle\par}%
+  \ifx\insertframesubtitle\@empty\else
+    {\usebeamerfont{framesubtitle}\color{bodytext!65}\insertframesubtitle\par}%
+  \fi
+  \vskip1pt}
+
+% ---------- Footer: author (linked) | title | slide x / N ----------
+\newlength{\nb@w}\AtBeginDocument{\setlength{\nb@w}{\dimexpr\paperwidth-\nb@margin-\nb@margin\relax}}
+% Author name, linked to \website when one is given
+\newcommand{\nb@authorlink}[1]{\if\relax\detokenize\expandafter{\nb@url}\relax #1%
+  \else\href{\nb@url}{#1}\fi}
+\setbeamertemplate{footline}{%
+  \begin{beamercolorbox}[wd=\paperwidth, leftskip=\nb@margin, rightskip=\nb@margin]{footline}%
+    \usebeamerfont{footline}\color{bodytext!65}%
+    \makebox[0.3\nb@w][l]{\nb@authorlink{\color{bodytext!65}\insertshortauthor}}%
+    \makebox[0.4\nb@w][c]{\beamer@shorttitle}%  (plain text, not a link)
+    \makebox[0.3\nb@w][r]{\insertframenumber\,/\,\inserttotalframenumber}%
+  \end{beamercolorbox}%
+  \vskip4pt}
+
+% ---------- Title slide: title, subtitle, rule, author | date, institute ----------
+\setbeamertemplate{title page}{%
+  \vfill
+  {\usebeamerfont{title}\usebeamercolor[fg]{title}\inserttitle\par}%
+  \ifx\insertsubtitle\@empty\else
+    \vskip4pt{\usebeamerfont{subtitle}\usebeamercolor[fg]{subtitle}\insertsubtitle\par}%
+  \fi
+  \vskip8pt{\color{accent}\rule{\linewidth}{0.8pt}}\par
+  \vskip6pt
+  {\small\color{bodytext!80}\nb@authorlink{\color{accent}\insertauthor}%
+    \enspace|\enspace\insertdate\par}%
+  \ifx\insertinstitute\@empty\else
+    \vskip3pt{\small\color{bodytext!80}\insertinstitute\par}%   (same color as the date)
+  \fi
+  \vfill\vfill}
+
+% \titleframe  -- title slide, no header and no footer
+\newcommand{\titleframe}{\begin{frame}[plain,c]\titlepage\end{frame}}
+
+% \closingframe  -- last slide, left-aligned, no header or footer
+% \closingframe[Optional second line][Optional main line]
+\NewDocumentCommand{\closingframe}{ O{Questions \& Discussion} O{Thank you!} }{%
+  \begin{frame}[plain,c]\relax
+    {\color{accent}\fontsize{20}{24}\selectfont\bfseries #2\par}%
+    \vskip8pt{\color{accent}\rule{0.35\linewidth}{0.8pt}}\par\vskip8pt
+    {\large\color{bodytext!70}#1\par}%
+  \end{frame}}
+
+% ---------- Section slides (optional): big number + title + where we are ----------
+% Off by default (the header bar already shows where we are).
+% Turn on for every \section with \usetheme[sectionframes]{mynotes},
+% or put \sectionframe by hand after a \section.
+\newcommand{\sectionframe}{%
+  {\begin{frame}[c]
+    \vfill
+    {\color{accent}\fontsize{32}{36}\selectfont\bfseries\thesection\par}%
+    \vskip2pt
+    {\color{accent}\LARGE\bfseries\insertsectionhead\par}%
+    \vskip6pt{\color{accent}\rule{0.35\linewidth}{0.8pt}}\par\vskip6pt
+    {\small\tableofcontents[currentsection, hideallsubsections,
+       sectionstyle=show/shaded]}%
+    \vfill
+  \end{frame}}}
+\ifnb@sectionframes
+  \AtBeginSection{\sectionframe}
+\fi
+
+% Labels on boxes: Beamer's \label does not accept cleveref's \label[type]{...},
+% so boxes use a plain \label and cleveref gets the names from the counters.
+\ExplSyntaxOn
+\cs_set:Npn \__tcobox_label_label:n #1 { \label{#1} }
+\cs_set_eq:NN \__tcobox_label:n \__tcobox_label_label:n
+\ExplSyntaxOff
+\crefname{tcb@cnt@definition}{Definition}{Definitions}
+\crefname{tcb@cnt@example}{Example}{Examples}
+\crefname{tcb@cnt@theorem}{Theorem}{Theorems}
+\crefname{tcb@cnt@exercise}{Exercise}{Exercises}
+\crefname{tcb@cnt@remark}{Remark}{Remarks}
+
+% ---------- Compact boxes on slides ----------
+% Theorem, Definition, Example, ...: no title bar; the title is run in
+% ("Theorem 2.1 (Title). If ...") and the padding is tighter.
+\tcbset{
+  notebox/.style 2 args={
+    enhanced, colback=#2, colframe=#1, coltext=bodytext,
+    boxrule=0pt, leftrule=2.5pt, arc=2pt, outer arc=2pt,
+    left=5pt, right=5pt, top=2pt, bottom=2pt,
+    before skip=3pt, after skip=3pt,
+    fonttitle=\bfseries, coltitle=#1,              % title in the box's color
+    detach title,
+    before upper={\RaggedRight{\color{#1}\bfseries\tcbtitle.}\enspace}},
+  codebox/.append style={before skip=3pt, after skip=3pt}}
+
+% Callouts (tip, warning, ...): icon and title on the same line as the text
+\renewtcolorbox{nb@callout}[3]{% #1 color, #2 icon code, #3 title
+  enhanced,
+  colback=#1!7!white, coltext=bodytext,
+  frame hidden, borderline west={2.5pt}{0pt}{#1}, arc=2pt,
+  left=5pt, right=5pt, top=2pt, bottom=2pt,
+  before skip=3pt, after skip=3pt,
+  before upper={\RaggedRight{\color{#1}\bfseries\nb@icon{#2}\enspace #3}\enspace}}
+
+% Smaller gaps around display math (Beamer's defaults are about 1 line)
+\newcommand{\nb@displayskips}{%
+  \setlength\abovedisplayskip{4pt plus 1pt}\setlength\belowdisplayskip{4pt plus 1pt}%
+  \setlength\abovedisplayshortskip{2pt}\setlength\belowdisplayshortskip{2pt plus 1pt}}
+\apptocmd{\normalsize}{\nb@displayskips}{}{}
+\nb@displayskips
+
+\endinput

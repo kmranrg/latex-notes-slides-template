@@ -1,0 +1,19 @@
+% !TEX program = xelatex
+% =====================================================================
+%  note.tex  --  a single note (one file per topic).
+%  Copy this file to start a new note; replace the \input lines with
+%  your own content.
+% =====================================================================
+\documentclass[11pt]{article}
+\usepackage{mynotes}
+\notesetup{Short Title}{Author Name}{https://example.com}  % header, footer, link
+% \showsolutionsfalse   % hide all solutions (e.g. for a handout)
+
+\begin{document}
+\notetitle{Title of the Note}
+
+\input{chapters/text}       % text, lists, mathematics
+\input{chapters/boxes}      % definition, theorem, proof, example, ...
+\input{chapters/callouts}   % note, tip, warning, ...
+\input{chapters/code}       % code, tables, figures, algorithms, references
+\end{document}

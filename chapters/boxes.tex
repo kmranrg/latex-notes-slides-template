@@ -1,0 +1,49 @@
+% ---------------------------------------------------------------------
+%  Sample content: numbered boxes
+% ---------------------------------------------------------------------
+\section{Numbered boxes}\label{sec:boxes}
+
+Numbered boxes hold the content you will refer back to. Each one takes an
+optional title and an optional label; the number follows the section.
+
+\begin{definition}[Title of the definition][def:sample]
+A \emph{definition} states precisely what a term means. For example, a
+function $f$ is \emph{increasing} if $x < y$ implies $f(x) \le f(y)$.
+\end{definition}
+
+\begin{theorem}[Title of the theorem][thm:sample]
+A \emph{theorem} states a main result. If $f$ and $g$ are increasing, then
+$f + g$ is increasing.
+\end{theorem}
+
+\begin{proof}
+Let $x < y$. By \cref{def:sample}, $f(x) \le f(y)$ and $g(x) \le g(y)$.
+Adding the two inequalities gives $(f + g)(x) \le (f + g)(y)$.
+\end{proof}
+
+\begin{lemma}
+Lemmas, propositions and corollaries share the color and the counter of
+theorems.
+\end{lemma}
+
+\begin{corollary}
+By \cref{thm:sample}, any finite sum of increasing functions is increasing.
+\end{corollary}
+
+\begin{example}[][ex:sample]
+Examples are shown in blue. Both $f(x) = x$ and $g(x) = x^3$ are increasing,
+so $x + x^3$ is increasing as well.
+\end{example}
+
+\begin{remark}
+Remarks are gray, for side comments that do not need emphasis.
+\end{remark}
+
+\begin{exercise}[][exer:sample]
+Exercises are orange. Show that $h(x) = -x$ is not increasing.
+\end{exercise}
+
+\begin{solution}
+Take $x = 0 < 1 = y$. Then $h(0) = 0 > -1 = h(1)$. Solutions can be hidden
+for handouts with \code{\showsolutionsfalse}.
+\end{solution}

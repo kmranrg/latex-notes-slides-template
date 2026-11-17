@@ -1,0 +1,301 @@
+% ==============================================================
+%  mynotes-core.sty  --  shared by notes (mynotes.sty) and slides
+%  (beamerthememynotes.sty): fonts, colors, boxes, callouts, code,
+%  tables, figures, macros. You normally never load this directly.
+% ==============================================================
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{mynotes-core}[2026/11/16 v1.0 Shared core of mynotes]
+
+\RequirePackage{iftex}
+\ifPDFTeX
+  \PackageError{mynotes}{Compile with XeLaTeX or LuaLaTeX, not pdfLaTeX}
+    {Add  % !TEX program = xelatex  as the first line of your main file.}
+\fi
+
+% ================= Fonts =================
+\RequirePackage{amsmath,amssymb,amsthm,mathtools}
+\RequirePackage{etoolbox}
+\RequirePackage{fontspec}
+\setmainfont{IBMPlexMono}[
+  Path = fonts/, Extension = .ttf,
+  UprightFont = *-Regular, BoldFont = *-Bold,
+  ItalicFont = *-Italic, BoldItalicFont = *-BoldItalic]
+\setsansfont{IBMPlexMono}[
+  Path = fonts/, Extension = .ttf,
+  UprightFont = *-SemiBold, BoldFont = *-Bold,
+  ItalicFont = *-Italic, BoldItalicFont = *-BoldItalic]
+\setmonofont{IBMPlexMono}[
+  Path = fonts/, Extension = .ttf,
+  UprightFont = *-Regular, BoldFont = *-Bold]
+\RequirePackage{unicode-math}
+\setmathfont{latinmodern-math.otf}[Scale=1.12]  % match Plex Mono's tall letters
+% Math letters and digits in Plex Mono, to match the text. Latin Modern Math
+% still gives symbols, operators, big integrals/sums and Greek.
+% Option classicmath (\usepackage[classicmath]{mynotes} or
+% \usetheme[classicmath]{mynotes}) keeps all-Latin-Modern math.
+\ifdefined\nb@classicmath\else
+  \setmathfont{IBMPlexMono-Italic.ttf}[Path=fonts/, range=it/{latin,Latin}]
+  \setmathfont{IBMPlexMono-Regular.ttf}[Path=fonts/, range=up/{latin,Latin,num}]
+  \setmathfont{IBMPlexMono-Bold.ttf}[Path=fonts/, range=bfup/{latin,Latin,num}]
+  \setmathfont{IBMPlexMono-BoldItalic.ttf}[Path=fonts/, range=bfit/{latin,Latin}]
+\fi
+\RequirePackage{ragged2e}                      % monospace looks best ragged-right
+% Monospace spaces cannot stretch: without this, a line ending in an inline
+% code box can stick out into the margin instead of breaking earlier.
+\setlength{\emergencystretch}{3em}
+
+% ================= Colors =================
+\RequirePackage[dvipsnames,table]{xcolor}
+\definecolor{accent}{RGB}{16,110,170}          % headings & links
+\definecolor{bodytext}{RGB}{30,30,30}
+\definecolor{defframe}{RGB}{46,94,46}     \definecolor{defback}{RGB}{234,243,234}
+\definecolor{exframe}{RGB}{25,118,210}    \definecolor{exback}{RGB}{240,246,252}
+\definecolor{thmframe}{RGB}{142,36,36}    \definecolor{thmback}{RGB}{251,238,238}
+\definecolor{remframe}{RGB}{110,110,110}  \definecolor{remback}{RGB}{245,245,245}
+\definecolor{exerframe}{RGB}{180,95,6}    \definecolor{exerback}{RGB}{254,245,231}
+\definecolor{hlcolor}{RGB}{255,232,150}
+\definecolor{co-blue}{RGB}{8,109,221}
+\definecolor{co-cyan}{RGB}{0,160,158}
+\definecolor{co-green}{RGB}{8,155,68}
+\definecolor{co-orange}{RGB}{226,112,0}
+\definecolor{co-red}{RGB}{220,45,66}
+\definecolor{co-gray}{RGB}{120,120,120}
+
+% ================= Tables, figures, plots, algorithms =================
+\RequirePackage{graphicx}
+\RequirePackage{booktabs, tabularx, multirow}
+\RequirePackage{needspace}
+\RequirePackage{array}
+\RequirePackage[font=small, labelfont={bf,color=accent}, skip=4pt]{caption}
+\RequirePackage{subcaption}
+
+\definecolor{tablehead}{RGB}{225,236,246}
+\definecolor{tablestripe}{RGB}{246,248,250}
+\newcommand{\thead}[1]{\textbf{#1}}            % header cell
+\newcolumntype{L}{>{\RaggedRight\arraybackslash}X}   % wrapping left column
+\newcolumntype{C}{>{\centering\arraybackslash}X}     % wrapping centered column
+
+% Tables and figures below are NOT floats: they stay exactly where you write them
+% (better for notes; they also work inside boxes and callouts).
+\captionsetup[table]{position=top}
+% \begin{datatable}[Caption][tab:label]{colspec}   first row = header, then striped rows
+\NewDocumentEnvironment{datatable}{o o m}{%
+  \par\needspace{6\baselineskip}\begin{center}
+  \IfValueT{#1}{\captionof{table}{#1}\nobreak}\IfValueT{#2}{\label{#2}}%
+  \setlength{\aboverulesep}{0pt}\setlength{\belowrulesep}{0pt}%
+  \renewcommand{\arraystretch}{1.35}%
+  \rowcolors{2}{tablestripe}{white}%
+  \begin{tabular}{#3}\toprule\rowcolor{tablehead}%
+}{\\\bottomrule\end{tabular}\end{center}}
+% \begin{widetable}[Caption][tab:label]{colspec}   full width; use X / L / C columns to wrap
+\NewDocumentEnvironment{widetable}{o o m}{%   (no center env here: tabularx needs
+  \par\addvspace{6pt}\needspace{6\baselineskip}\noindent  % to see \end{widetable} directly)
+  \IfValueT{#1}{\captionof{table}{#1}\nobreak}\IfValueT{#2}{\label{#2}}%
+  \setlength{\aboverulesep}{0pt}\setlength{\belowrulesep}{0pt}%
+  \renewcommand{\arraystretch}{1.35}%
+  \rowcolors{2}{tablestripe}{white}%
+  \tabularx{\linewidth}{#3}\toprule\rowcolor{tablehead}%
+}{\toks@\expandafter{\the\toks@\\\bottomrule}\endtabularx\par\addvspace{6pt}}
+% \begin{notefigure}[Caption][fig:label]  \includegraphics[...]{...}  \end{notefigure}
+\NewDocumentEnvironment{notefigure}{o o}{\par\begin{center}\def\@captype{figure}}%  (subfigures work too)
+  {\IfValueT{#1}{\par\captionof{figure}{#1}}\IfValueT{#2}{\label{#2}}\end{center}}
+
+\RequirePackage{pgfplots}
+\pgfplotsset{compat=1.18,
+  every axis/.append style={grid=major, grid style={black!10},
+    tick label style={font=\footnotesize}, label style={font=\small},
+    legend style={font=\footnotesize, draw=none, fill=white}},
+  cycle list={{accent, thick},{co-orange, thick},{co-green, thick},{co-red, thick}}}
+\RequirePackage{algorithm}
+\RequirePackage{algpseudocode}
+\counterwithin{algorithm}{section}
+
+% ================= Links & references =================
+\RequirePackage{hyperref}
+\hypersetup{colorlinks=true, linkcolor=accent, urlcolor=accent, citecolor=accent}
+\RequirePackage[nameinlink,capitalize,noabbrev]{cleveref}
+
+% ================= Boxes =================
+\RequirePackage[most]{tcolorbox}
+\tcbset{
+  notebox/.style 2 args={
+    enhanced, breakable,
+    colback=#2, colframe=#1, coltext=bodytext,
+    boxrule=0pt, leftrule=3.5pt, arc=2pt, outer arc=2pt,
+    left=7pt, right=7pt, top=3pt, bottom=4pt,
+    before skip=6pt, after skip=6pt, before upper=\RaggedRight,
+    fonttitle=\bfseries, coltitle=white,
+    attach boxed title to top left={yshift*=-\tcboxedtitleheight},
+    boxed title style={colback=#1, boxrule=0pt, sharp corners,
+                       left=5pt, right=5pt, top=2pt, bottom=2pt},
+  }
+}
+\newcommand{\nb@title}[2]{#1~\thetcbcounter\if\relax\detokenize{#2}\relax\else\ \mdseries(#2)\fi}
+
+% Usage:  \begin{definition}[Optional title][def:label] ... \end{definition}
+%         both brackets optional; refer back with \cref{def:label}
+\DeclareTColorBox[auto counter, number within=section,
+  crefname={Definition}{Definitions}]{definition}{ O{} o }{%
+  notebox={defframe}{defback}, title={\nb@title{Definition}{#1}}, IfValueT={#2}{label={#2}}}
+\DeclareTColorBox[auto counter, number within=section,
+  crefname={Example}{Examples}]{example}{ O{} o }{%
+  notebox={exframe}{exback}, title={\nb@title{Example}{#1}}, IfValueT={#2}{label={#2}}}
+\DeclareTColorBox[auto counter, number within=section,
+  crefname={Theorem}{Theorems}]{theorem}{ O{} o }{%
+  notebox={thmframe}{thmback}, title={\nb@title{Theorem}{#1}}, IfValueT={#2}{label={#2}}}
+\DeclareTColorBox[use counter from=theorem,
+  crefname={Lemma}{Lemmas}]{lemma}{ O{} o }{%
+  notebox={thmframe}{thmback}, title={\nb@title{Lemma}{#1}}, IfValueT={#2}{label={#2}}}
+\DeclareTColorBox[use counter from=theorem,
+  crefname={Proposition}{Propositions}]{proposition}{ O{} o }{%
+  notebox={thmframe}{thmback}, title={\nb@title{Proposition}{#1}}, IfValueT={#2}{label={#2}}}
+\DeclareTColorBox[use counter from=theorem,
+  crefname={Corollary}{Corollaries}]{corollary}{ O{} o }{%
+  notebox={thmframe}{thmback}, title={\nb@title{Corollary}{#1}}, IfValueT={#2}{label={#2}}}
+\DeclareTColorBox[auto counter, number within=section,
+  crefname={Exercise}{Exercises}]{exercise}{ O{} o }{%
+  notebox={exerframe}{exerback}, title={\nb@title{Exercise}{#1}}, IfValueT={#2}{label={#2}}}
+\DeclareTColorBox[auto counter, number within=section,
+  crefname={Remark}{Remarks}]{remark}{ O{} o }{%
+  notebox={remframe}{remback}, title={\nb@title{Remark}{#1}}, IfValueT={#2}{label={#2}}}
+
+% Proof / solution: thin gray bar on the left
+\renewcommand{\qedsymbol}{\ensuremath{\blacksquare}}   % filled square
+\let\proof\relax\let\endproof\relax
+\newenvironment{proof}[1][\proofname]{%
+  \begin{tcolorbox}[enhanced, breakable, blanker, borderline west={1pt}{0pt}{black!35},
+                    left=8pt, before skip=2pt, after skip=6pt, before upper=\RaggedRight]%
+  \textit{#1.}\ }{\qed\end{tcolorbox}}
+\newif\ifshowsolutions \showsolutionstrue
+\newenvironment{solution}{\ifshowsolutions\begin{proof}[Solution]}{\end{proof}\fi}
+
+
+% ================= Code (Python & others) =================
+\newfontfamily\nb@icons{FontAwesome6-Solid.otf}[Path = fonts/, BoldFont = FontAwesome6-Solid.otf]
+\newcommand{\nb@icon}[1]{{\nb@icons\symbol{"#1}}}
+\newfontfamily\nb@brands{FontAwesome6-Brands.otf}[Path = fonts/, BoldFont = FontAwesome6-Brands.otf]
+\newcommand{\nb@brand}[1]{{\nb@brands\symbol{"#1}}}
+
+\tcbuselibrary{listings}
+\providecommand{\nb@codesize}{\small}           % beamer theme sets \footnotesize
+\definecolor{codebg}{RGB}{246,248,250}
+\definecolor{codeframe}{RGB}{208,215,222}
+\definecolor{code-kw}{RGB}{175,0,219}        % keywords      (VS Code light)
+\definecolor{code-fn}{RGB}{121,94,38}        % builtins
+\definecolor{code-str}{RGB}{163,21,21}       % strings
+\definecolor{code-com}{RGB}{0,128,0}         % comments
+\definecolor{code-ln}{RGB}{150,150,150}      % line numbers
+
+\lstdefinestyle{notes}{
+  basicstyle=\ttfamily\nb@codesize, columns=fullflexible, keepspaces=true,
+  keywordstyle=\color{code-kw}, keywordstyle=[2]\color{code-fn},
+  stringstyle=\color{code-str}, commentstyle=\color{code-com}\itshape,
+  numberstyle=\scriptsize\color{code-ln}, numbersep=8pt,
+  showstringspaces=false, breaklines=true, tabsize=4,
+  breakatwhitespace=false, postbreak=\mbox{$\hookrightarrow$\space},  % (no \color here: breaks in beamer)
+  upquote=true}
+\lstdefinestyle{py}{style=notes, language=Python,
+  morekeywords={True,False,None,self,async,await,with,as,lambda,yield,nonlocal},
+  morekeywords=[2]{print,len,range,enumerate,zip,map,filter,sum,min,max,abs,
+    int,float,str,list,dict,set,tuple,isinstance,open,super,sorted,round}}
+
+
+\tcbset{codebox/.style={
+  enhanced, breakable, listing only,
+  colback=codebg, colframe=codeframe, boxrule=0.5pt, arc=2pt,
+  left=18pt, right=4pt, top=2pt, bottom=2pt, before skip=6pt, after skip=6pt,
+  fonttitle=\ttfamily\small\bfseries, coltitle=bodytext!80,
+  colbacktitle=codeframe!45, titlerule=0pt, toptitle=1pt, bottomtitle=1pt}}
+
+% \begin{python}[optional title, e.g. a filename] ... \end{python}
+\DeclareTCBListing{python}{ O{} }{codebox,
+  listing options={style=py, numbers=left},
+  \if\relax\detokenize{#1}\relax\else title={\nb@brand{F3E2}\enspace\detokenize{#1}},\fi}
+% \begin{codeblock}{C++}[optional title] ... \end{codeblock}   (any listings language)
+\DeclareTCBListing{codeblock}{ m O{} }{codebox,
+  listing options={style=notes, language={#1}, numbers=left},
+  title={\nb@icon{F121}\enspace\if\relax\detokenize{#2}\relax\detokenize{#1}\else\detokenize{#2}\fi}}
+% \pyfile[optional title]{path/to/script.py}   -- include a whole file
+\NewDocumentCommand{\pyfile}{ O{} m }{%
+  \tcbinputlisting{codebox, listing file={#2},
+    listing options={style=py, numbers=left},
+    title={\nb@brand{F3E2}\enspace\if\relax\detokenize{#1}\relax\detokenize{#2}\else #1\fi}}}
+% \begin{terminal} ... \end{terminal}   -- program output / shell
+\DeclareTCBListing{terminal}{ O{Output} }{codebox,
+  colback=black!85, colframe=black!85, colbacktitle=black!70, coltitle=white,
+  left=6pt, listing options={style=notes, basicstyle=\ttfamily\nb@codesize\color{white}},
+  title={\nb@icon{F120}\enspace #1}}
+% Inline code:  \code{x_1 = np.zeros(3)}   (works everywhere, also in tables & titles;
+% braces must be balanced; write \% and \# for % and #)
+\ExplSyntaxOn
+\tl_new:N \l__nb_code_tl
+\cs_new_protected:Npn \nb_code:n #1
+  {
+    \tl_set:Nx \l__nb_code_tl { \tl_to_str:n {#1} }
+    % \detokenize puts a space after every \command: undo it unless a letter or \ follows
+    \regex_replace_all:nnN { (\\[A-Za-z@]+)\x{20}([^A-Za-z\\\x{20}]) } { \1\2 } \l__nb_code_tl
+    \regex_replace_all:nnN { (\\[A-Za-z@]+)\x{20}\Z } { \1 } \l__nb_code_tl
+    \regex_replace_all:nnN { \#\# } { \# } \l__nb_code_tl
+    \regex_replace_all:nnN { \\([\%\#\&\_]) } { \1 } \l__nb_code_tl
+    \tl_use:N \l__nb_code_tl
+  }
+\NewDocumentCommand{\code}{m}{{\setlength{\fboxsep}{1.5pt}%
+  \colorbox{codebg}{\ttfamily\small\nb_code:n{#1}}}}
+\ExplSyntaxOff
+
+% ================= Handy macros =================
+\newcommand{\R}{\mathbb{R}}  \newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}  \newcommand{\Q}{\mathbb{Q}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\vect}[1]{\mathbf{#1}}             % vectors: \vect{x}
+\DeclarePairedDelimiter{\abs}{\lvert}{\rvert}
+\DeclarePairedDelimiter{\norm}{\lVert}{\rVert}
+\DeclarePairedDelimiterX{\inner}[2]{\langle}{\rangle}{#1,#2}  % \inner{x}{y}
+\DeclareMathOperator{\spn}{span}
+\DeclareMathOperator{\rank}{rank}
+\DeclareMathOperator{\tr}{tr}
+\newcommand{\hl}[1]{{\setlength{\fboxsep}{1.5pt}\colorbox{hlcolor}{#1}}}  % highlighter
+% ================= Obsidian-style callouts =================
+% Usage:  \begin{warning} ... \end{warning}
+%         \begin{tip}[Custom title] ... \end{tip}
+% Types:  note, info, todo, tip, hint, important, summary, tldr, success,
+%         question, faq, warning, caution, attention, failure, danger, bug, quotebox
+
+\newtcolorbox{nb@callout}[3]{% #1 color, #2 icon code, #3 title
+  enhanced, breakable,
+  colback=#1!7!white, coltext=bodytext,
+  frame hidden, borderline west={3pt}{0pt}{#1}, arc=2pt,
+  left=7pt, right=7pt, top=4pt, bottom=4pt,
+  before skip=6pt, after skip=6pt,
+  before upper={\RaggedRight{\color{#1}\bfseries\nb@icon{#2}\enspace #3}\par\vspace{1pt}}}
+
+% (\DeclareDocumentEnvironment: e.g. unicode-math already defines \danger as a symbol)
+% \newcallout{env name}{color}{icon hex code}{default title}
+\newcommand{\newcallout}[4]{%
+  \DeclareDocumentEnvironment{#1}{O{#4}}{\begin{nb@callout}{#2}{#3}{##1}}{\end{nb@callout}}}
+% Defined at \begin{document}, after unicode-math sets up its symbols (\danger is one)
+\AtBeginDocument{%
+  \newcallout{note}{co-blue}{F304}{Note}%
+  \newcallout{info}{co-blue}{F05A}{Info}%
+  \newcallout{todo}{co-blue}{F058}{Todo}%
+  \newcallout{tip}{co-cyan}{F06D}{Tip}%
+  \newcallout{hint}{co-cyan}{F0EB}{Hint}%
+  \newcallout{important}{co-cyan}{F06A}{Important}%
+  \newcallout{summary}{co-cyan}{F46D}{Summary}%
+  \newcallout{tldr}{co-cyan}{F46D}{TL;DR}%
+  \newcallout{success}{co-green}{F00C}{Success}%
+  \newcallout{question}{co-orange}{F059}{Question}%
+  \newcallout{faq}{co-orange}{F059}{FAQ}%
+  \newcallout{warning}{co-orange}{F071}{Warning}%
+  \newcallout{caution}{co-orange}{F071}{Caution}%
+  \newcallout{attention}{co-orange}{F071}{Attention}%
+  \newcallout{failure}{co-red}{F00D}{Failure}%
+  \newcallout{danger}{co-red}{F0E7}{Danger}%
+  \newcallout{bug}{co-red}{F188}{Bug}%
+  \newcallout{quotebox}{co-gray}{F10D}{Quote}%
+}
+
+\RequirePackage{tikz}
+\usetikzlibrary{arrows.meta, positioning, shapes.geometric, calc}
+
+\endinput
